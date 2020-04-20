@@ -1,1 +1,1 @@
-from models.models import FROZEN_EAST_TEXT_DETECTION
+from modules.number_recognition import 
