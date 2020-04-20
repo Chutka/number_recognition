@@ -1,0 +1,4 @@
+{
+  "python.pythonPath": "/home/vyacheslav-p/.cache/pypoetry/virtualenvs/number-recognition-fLhbjwL8-py3.7/bin/python",
+  "python.linting.pylintArgs": ["--generate-members"]
+}
