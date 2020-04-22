@@ -1,5 +1,3 @@
-from ...models import models
-
 
 # EAST deep learning mode 
 # Создан с помощью 
@@ -8,6 +6,8 @@ class TextDetection:
   def __init__(self, image):
     self.image = image
 
+# if __name__ == '__main__':
+  
 # import the necessary packages
 from imutils.object_detection import non_max_suppression
 import numpy as np
