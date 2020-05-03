@@ -15,26 +15,30 @@ layerNames = [
 	"feature_fusion/Conv_7/Sigmoid",
 	"feature_fusion/concat_3"]
 
+DEFAULT_EAST_PATH = os.path.abspath(os.path.dirname(__file__), 'frozen_east_text_detection.pb')
+DEFAULT_MIN_CONFIDENCE = 0.5
+DEFAULT_WIDTH = 320
+DEFAULT_HEIGHT = 320
+
 # EAST deep learning mode 
 # Создан с помощью 
 # https://www.pyimagesearch.com/2018/08/20/opencv-text-detection-east-text-detector/
 class TextDetection:
-  def __init__(self, image):
-    self.image = image
+  def __init__(
+		self,
+		image,
+		eastPath=DEFAULT_EAST_PATH,
+		minConfidence=DEFAULT_MIN_CONFIDENCE,
+		width=DEFAULT_WIDTH,
+		height=DEFAULT_HEIGHT,
+	):
+    self.image = cv2.resize(image, (width, height))
+		self.eastPath = eastPath
 	
-	def _resize(self, newW, newH):
-		# Resize image to new dementions
-		orig = self.image.copy()
-		(H, W) = image.shape[:2]
-		
-		rW = W / float(newW)
-		rH = H / float(newH)
-		self.image = cv2.resize(self.image, (newW, newH))
-
-	def test(self):
+	def search_boxes(self):
 		# load the pre-trained EAST text detector
 		print("[INFO] loading EAST text detector...")
-		net = cv2.dnn.readNet(args["east"])
+		net = cv2.dnn.readNet(self.eastPath)
 		# construct a blob from the image and then perform a forward pass of
 		# the model to obtain the two output layer sets
 		blob = cv2.dnn.blobFromImage(image, 1.0, (W, H),
@@ -94,6 +98,9 @@ class TextDetection:
 		# apply non-maxima suppression to suppress weak, overlapping bounding
 		# boxes
 		boxes = non_max_suppression(np.array(rects), probs=confidences)
+		
+
+	def test(self):
 		# loop over the bounding boxes
 		for (startX, startY, endX, endY) in boxes:
 			# scale the bounding box coordinates based on the respective
@@ -114,23 +121,21 @@ if __name__ == '__main__':
 
 	# construct the argument parser and parse the arguments
 	ap = argparse.ArgumentParser()
-	ap.add_argument("-i", "--image", type=str,
-		help="path to input image")
-	ap.add_argument("-east", "--east", type=str,
-		help="path to input EAST text detector")
-	ap.add_argument("-c", "--min-confidence", type=float, default=0.5,
-		help="minimum probability required to inspect a region")
-	ap.add_argument("-w", "--width", type=int, default=320,
-		help="resized image width (should be multiple of 32)")
-	ap.add_argument("-e", "--height", type=int, default=320,
-		help="resized image height (should be multiple of 32)")
+	ap.add_argument("-i", "--image", type=str, help="path to input image")
+	ap.add_argument("-east", "--east", type=str, default=DEFAULT_EAST_PATH, help="path to input EAST text detector")
+	ap.add_argument("-c", "--min-confidence", type=float, default=DEFAULT_MIN_CONFIDENCE, help="minimum probability required to inspect a region")
+	ap.add_argument("-w", "--width", type=int, default=DEFAULT_WIDTH, help="resized image width (should be multiple of 32)")
+	ap.add_argument("-e", "--height", type=int, default=DEFAULT_HEIGHT, help="resized image height (should be multiple of 32)")
 	args = vars(ap.parse_args())
 
 	# load the input image and grab the image dimensions
 	image = cv2.imread(args["image"])
-	
-	td = TextDetection(image)
-	
 	(newW, newH) = (args["width"], args["height"])
 
-	td.resize(newW, newH)
+	td = TextDetection(
+		image,
+		eastPath=args["east"],
+		minConfidence=args["min-confidence"],
+		width=newW,
+		height=newH,
+	)
